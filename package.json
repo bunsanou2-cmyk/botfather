@@ -1,0 +1,26 @@
+{
+  "name": "khmer-help-khmer",
+  "version": "1.0.0",
+  "description": "Production-ready Telegram donation bot platform for Cambodia (Khmer Help Khmer)",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js",
+    "seed": "node src/core/db/seed.js",
+    "test": "node --test test/unit.test.js test/payment.test.js test/verification.test.js test/bot_flow.test.js"
+  },
+  "keywords": [
+    "telegram-bot",
+    "donation-platform",
+    "cambodia",
+    "khmer",
+    "bakong-khqr",
+    "charity",
+    "crowdfunding"
+  ],
+  "author": "Khmer Help Khmer Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

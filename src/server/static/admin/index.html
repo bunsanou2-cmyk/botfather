@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khmer Help Khmer - Administration Portal</title>
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-dark: #020617;
+      --secondary: #1e293b;
+      --surface: #ffffff;
+      --surface-subtle: #f8fafc;
+      --border: #e2e8f0;
+      --gold: #f59e0b;
+      --gold-dark: #d97706;
+      --gold-light: #fef3c7;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --info: #3b82f6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Khmer OS Siemreap", sans-serif; }
+    body { background-color: #f1f5f9; color: var(--text); min-height: 100vh; display: flex; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--primary);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .brand {
+      padding: 1.5rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .brand-logo { font-size: 1.75rem; }
+    .brand-title { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; color: #ffffff; }
+    .brand-subtitle { font-size: 0.75rem; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .nav-links { list-style: none; padding: 1rem 0.75rem; flex: 1; overflow-y: auto; }
+    .nav-item { margin-bottom: 0.25rem; }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: #94a3b8;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: #ffffff;
+      background: var(--secondary);
+    }
+    .nav-link.active {
+      border-left: 3px solid var(--gold);
+      background: rgba(245, 158, 11, 0.12);
+      color: #ffffff;
+    }
+
+    .admin-profile {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .admin-info { font-size: 0.85rem; }
+    .admin-info .name { font-weight: 700; color: #ffffff; }
+    .admin-info .role { font-size: 0.75rem; color: var(--gold); }
+    .btn-logout { background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 1.1rem; }
+    .btn-logout:hover { color: var(--danger); }
+
+    /* Main Content */
+    .main-wrap { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .page-title { font-size: 1.35rem; font-weight: 800; color: var(--primary); }
+
+    .content-body { padding: 2rem; }
+
+    /* Cards & Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--gold);
+    }
+    .stat-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .stat-value { font-size: 1.85rem; font-weight: 800; color: var(--primary); margin: 0.4rem 0 0.2rem 0; }
+    .stat-sub { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Data Tables */
+    .card-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .card-header h2 { font-size: 1.05rem; font-weight: 700; color: var(--primary); }
+
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; }
+    th { background: #f8fafc; padding: 0.75rem 1.25rem; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 0.85rem 1.25rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .badge-paid, .badge-verified, .badge-distributed { background: #dcfce7; color: #166534; }
+    .badge-pending, .badge-pending_review { background: #fef3c7; color: #92400e; }
+    .badge-failed, .badge-rejected { background: #fee2e2; color: #991b1b; }
+    .badge-draft { background: #e2e8f0; color: #475569; }
+
+    /* Buttons */
+    .btn {
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .btn-gold { background: var(--gold); color: #ffffff; }
+    .btn-gold:hover { background: var(--gold-dark); }
+    .btn-secondary { background: #e2e8f0; color: var(--text); }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: var(--danger); color: #ffffff; }
+    .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.75rem; }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1.5rem;
+    }
+    .modal {
+      background: #ffffff;
+      border-radius: 14px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.75rem; background: #f8fafc; }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--primary); }
+    .form-control {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+    .form-control:focus { outline: 2px solid var(--gold); border-color: transparent; }
+
+    /* Auth Screen */
+    .login-container {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1.5rem;
+    }
+    .login-box {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 2.25rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: static; }
+      .content-body { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Modal Overlay if not signed in -->
+  <div class="login-container" id="loginScreen" style="display: none;">
+    <div class="login-box">
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <span style="font-size: 2.5rem;">🇰🇭</span>
+        <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--primary); margin-top: 0.5rem;">Khmer Help Khmer</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Admin Portal Sign In</p>
+      </div>
+      <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="loginUsername" class="form-control" placeholder="admin" required value="admin">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required value="KhmerHelpKhmer2026!">
+        </div>
+        <div id="loginError" style="color: var(--danger); font-size: 0.8rem; margin-bottom: 0.75rem; display: none;"></div>
+        <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center; padding: 0.75rem;">
+          Sign In to Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-logo">🇰🇭</span>
+      <div>
+        <div class="brand-title">KHMER HELP KHMER</div>
+        <div class="brand-subtitle">Charity Admin</div>
+      </div>
+    </div>
+
+    <ul class="nav-links">
+      <li class="nav-item"><a class="nav-link active" onclick="switchTab('dashboard')">📊 Dashboard</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchTab('beneficiaries')">👥 Beneficiaries</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchTab('verification')">✅ Verification Queue</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchTab('donations')">💰 Donations Audit</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchTab('donors')">👤 Donors</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchTab('distributions')">📦 Distributions</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchTab('broadcast')">📢 Telegram Broadcast</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchTab('audit')">⚙️ Immutable Audit Logs</a></li>
+      <li class="nav-item"><a class="nav-link" href="/public/transparency.html" target="_blank">🏛️ Public Portal ↗</a></li>
+    </ul>
+
+    <div class="admin-profile">
+      <div class="admin-info">
+        <div class="name" id="sidebarAdminName">Administrator</div>
+        <div class="role" id="sidebarAdminRole">SUPER_ADMIN</div>
+      </div>
+      <button class="btn-logout" title="Sign Out" onclick="logout()">⏻</button>
+    </div>
+  </aside>
+
+  <!-- Main Area -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <h1 class="page-title" id="pageTitle">📊 Dashboard Overview</h1>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <span class="badge badge-paid">Platform Operational</span>
+        <button class="btn btn-secondary btn-sm" onclick="refreshCurrentTab()">🔄 Refresh</button>
+      </div>
+    </header>
+
+    <main class="content-body">
+
+      <!-- SECTION 1: DASHBOARD -->
+      <section id="tab-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-title">Total Donated</div>
+            <div class="stat-value" id="statTotalDonated">$0.00</div>
+            <div class="stat-sub" id="statDonationsCount">0 verified donations</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Assistance Distributed</div>
+            <div class="stat-value" id="statTotalDistributed" style="color: var(--success);">$0.00</div>
+            <div class="stat-sub">Direct field assistance delivered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Active Campaigns</div>
+            <div class="stat-value" id="statActiveCampaigns">0</div>
+            <div class="stat-sub" id="statCompletedCampaigns">0 completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Registered Donors</div>
+            <div class="stat-value" id="statTotalDonors">0</div>
+            <div class="stat-sub">Telegram users joined</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Pending Verification</div>
+            <div class="stat-value" id="statPendingVerification" style="color: var(--gold-dark);">0</div>
+            <div class="stat-sub">Beneficiaries awaiting review</div>
+          </div>
+        </div>
+
+        <div class="card-box">
+          <div class="card-header">
+            <h2>Recent Verified Donations</h2>
+            <button class="btn btn-secondary btn-sm" onclick="switchTab('donations')">View All</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Donation ID</th>
+                <th>Beneficiary</th>
+                <th>Amount</th>
+                <th>Provider</th>
+                <th>Transaction ID</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="dashboardRecentDonationsTbody">
+              <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading transactions...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 2: BENEFICIARIES -->
+      <section id="tab-beneficiaries" style="display: none;">
+        <div class="card-box">
+          <div class="card-header">
+            <h2>All Beneficiaries & Campaigns</h2>
+            <button class="btn btn-gold" onclick="openNewBeneficiaryModal()">+ Add New Beneficiary</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Profile</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Needed</th>
+                <th>Received</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="beneficiariesTbody">
+              <tr><td colspan="8" style="text-align: center;">Loading beneficiaries...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 3: VERIFICATION QUEUE -->
+      <section id="tab-verification" style="display: none;">
+        <div class="card-box">
+          <div class="card-header">
+            <h2>Beneficiary Verification & Review Workflow</h2>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Current Situation</th>
+                <th>Target</th>
+                <th>Current Status</th>
+                <th>Review Actions</th>
+              </tr>
+            </thead>
+            <tbody id="verificationTbody">
+              <tr><td colspan="7" style="text-align: center;">Loading verification queue...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 4: DONATIONS AUDIT -->
+      <section id="tab-donations" style="display: none;">
+        <div class="card-box">
+          <div class="card-header">
+            <h2>Donation Transactions Audit</h2>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="donationSearch" placeholder="Search Code / TX / Donor..." class="form-control" style="width: 240px;" oninput="loadDonations()">
+              <select id="donationStatusFilter" class="form-control" style="width: 140px;" onchange="loadDonations()">
+                <option value="ALL">All Statuses</option>
+                <option value="PAID">PAID</option>
+                <option value="PENDING">PENDING</option>
+                <option value="FAILED">FAILED</option>
+              </select>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Donor (Telegram)</th>
+                <th>Beneficiary</th>
+                <th>Amount</th>
+                <th>Provider</th>
+                <th>Transaction ID</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="donationsTbody">
+              <tr><td colspan="8" style="text-align: center;">Loading donations...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 5: DONORS -->
+      <section id="tab-donors" style="display: none;">
+        <div class="card-box">
+          <div class="card-header">
+            <h2>Donor Community (Telegram Users)</h2>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Telegram ID</th>
+                <th>Name / Username</th>
+                <th>Language</th>
+                <th>Total Donated</th>
+                <th>Donation Count</th>
+                <th>Joined Date</th>
+              </tr>
+            </thead>
+            <tbody id="donorsTbody">
+              <tr><td colspan="6" style="text-align: center;">Loading donors...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 6: DISTRIBUTIONS -->
+      <section id="tab-distributions" style="display: none;">
+        <div class="card-box">
+          <div class="card-header">
+            <h2>Assistance Handover & Distribution Records</h2>
+            <button class="btn btn-gold" onclick="openNewDistributionModal()">+ Record New Distribution</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Ref Number</th>
+                <th>Beneficiary</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Date</th>
+                <th>Admin Responsible</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="distributionsTbody">
+              <tr><td colspan="7" style="text-align: center;">Loading distribution records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 7: BROADCAST -->
+      <section id="tab-broadcast" style="display: none;">
+        <div class="card-box" style="max-width: 600px;">
+          <div class="card-header">
+            <h2>📢 Send Telegram Announcement</h2>
+          </div>
+          <div style="padding: 1.5rem;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+              Send verified humanitarian updates directly to all donors who have interacted with the Khmer Help Khmer Telegram bot.
+            </p>
+            <form onsubmit="handleBroadcastSubmit(event)">
+              <div class="form-group">
+                <label>Announcement Message (HTML Supported)</label>
+                <textarea id="broadcastText" class="form-control" rows="5" placeholder="🇰🇭 សេចក្តីជូនដំណឹង / Humanitarian Announcement..." required></textarea>
+              </div>
+              <div class="form-group">
+                <label>Optional Photo URL</label>
+                <input type="url" id="broadcastMediaUrl" class="form-control" placeholder="https://...">
+              </div>
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" id="broadcastConfirm" required>
+                  I confirm that this announcement is verified and intended for all donors.
+                </label>
+              </div>
+              <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center;">
+                🚀 Dispatch Broadcast
+              </button>
+            </form>
+            <div id="broadcastResult" style="margin-top: 1rem; display: none;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 8: AUDIT LOGS -->
+      <section id="tab-audit" style="display: none;">
+        <div class="card-box">
+          <div class="card-header">
+            <h2>Immutable Financial & Administrative Audit Trail</h2>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Actor Type</th>
+                <th>Actor ID</th>
+                <th>Action</th>
+                <th>Entity</th>
+                <th>Entity ID</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="auditTbody">
+              <tr><td colspan="7" style="text-align: center;">Loading audit logs...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal: Add Beneficiary -->
+  <div class="modal-overlay" id="beneficiaryModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 700;">Add Verified Beneficiary</h3>
+        <button onclick="closeModal('beneficiaryModal')" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+      <form onsubmit="handleCreateBeneficiarySubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Full Name (English) *</label>
+            <input type="text" id="bFullName" class="form-control" required placeholder="Lok Yeay Sokha">
+          </div>
+          <div class="form-group">
+            <label>Full Name (Khmer) *</label>
+            <input type="text" id="bFullNameKm" class="form-control" required placeholder="លោកយាយ សុខា">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label>Category *</label>
+              <select id="bCategory" class="form-control" required>
+                <option value="sick">❤️ Sick People</option>
+                <option value="student">🎓 Students</option>
+                <option value="elderly">👵 Elderly People</option>
+                <option value="team">🤝 Team Operating Fund</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Target Amount ($ USD) *</label>
+              <input type="number" step="0.01" min="1" id="bAmountNeeded" class="form-control" required placeholder="1000">
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label>Age</label>
+              <input type="number" id="bAge" class="form-control" placeholder="72">
+            </div>
+            <div class="form-group">
+              <label>Location (Province/City) *</label>
+              <input type="text" id="bLocation" class="form-control" required placeholder="Battambang Province">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Photo URL</label>
+            <input type="url" id="bProfileImageUrl" class="form-control" placeholder="https://images.unsplash.com/...">
+          </div>
+          <div class="form-group">
+            <label>Current Situation (Khmer) *</label>
+            <textarea id="bSituationKm" class="form-control" rows="2" required placeholder="ស្ថានភាពបច្ចុប្បន្ន..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Current Situation (English) *</label>
+            <textarea id="bSituationEn" class="form-control" rows="2" required placeholder="Current situation..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Full Story (Khmer & English) *</label>
+            <textarea id="bStory" class="form-control" rows="3" required placeholder="Detailed humanitarian background story..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Initial Status</label>
+            <select id="bInitialStatus" class="form-control">
+              <option value="DRAFT">SAVE AS DRAFT</option>
+              <option value="PENDING_REVIEW">SUBMIT FOR REVIEW</option>
+              <option value="VERIFIED">APPROVE DIRECTLY (VERIFIED)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('beneficiaryModal')">Cancel</button>
+          <button type="submit" class="btn btn-gold">Save Beneficiary</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Record Distribution -->
+  <div class="modal-overlay" id="distributionModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 700;">Record Assistance Distribution</h3>
+        <button onclick="closeModal('distributionModal')" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+      <form onsubmit="handleCreateDistributionSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Select Beneficiary *</label>
+            <select id="distBeneficiaryId" class="form-control" required></select>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label>Amount Distributed ($ USD) *</label>
+              <input type="number" step="0.01" min="0.10" id="distAmount" class="form-control" required placeholder="250.00">
+            </div>
+            <div class="form-group">
+              <label>Distribution Date *</label>
+              <input type="date" id="distDate" class="form-control" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Method *</label>
+            <select id="distMethod" class="form-control" required>
+              <option value="Cash in Hand">Cash in Hand (Direct field handover)</option>
+              <option value="Bank Transfer">Bank Transfer (ABA / Wing / ACLEDA)</option>
+              <option value="Direct Hospital Payment">Direct Hospital Payment</option>
+              <option value="Supplies & Food Rations">Supplies & Food Rations Handover</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Reference / Receipt Number</label>
+            <input type="text" id="distRef" class="form-control" placeholder="DIST-2026-002">
+          </div>
+          <div class="form-group">
+            <label>Handover Proof Document / Photo URL</label>
+            <input type="url" id="distProof" class="form-control" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label>Auditor Notes</label>
+            <textarea id="distNotes" class="form-control" rows="2" placeholder="Handed over directly to beneficiary with signed commune receipt."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('distributionModal')">Cancel</button>
+          <button type="submit" class="btn btn-gold">Record Handover</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let token = localStorage.getItem('khk_admin_token') || '';
+    let currentTab = 'dashboard';
+    let cachedBeneficiaries = [];
+
+    function authHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+    }
+
+    async function checkAuth() {
+      if (!token) {
+        document.getElementById('loginScreen').style.display = 'flex';
+        return false;
+      }
+      try {
+        const res = await fetch('/api/auth/me', { headers: authHeaders() });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('sidebarAdminName').innerText = data.admin.fullName;
+          document.getElementById('sidebarAdminRole').innerText = data.admin.role;
+          document.getElementById('loginScreen').style.display = 'none';
+          return true;
+        } else {
+          document.getElementById('loginScreen').style.display = 'flex';
+          return false;
+        }
+      } catch (_) {
+        document.getElementById('loginScreen').style.display = 'flex';
+        return false;
+      }
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const errBox = document.getElementById('loginError');
+      errBox.style.display = 'none';
+
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          token = data.token;
+          localStorage.setItem('khk_admin_token', token);
+          document.getElementById('loginScreen').style.display = 'none';
+          refreshCurrentTab();
+        } else {
+          errBox.innerText = data.error || 'Invalid credentials';
+          errBox.style.display = 'block';
+        }
+      } catch (err) {
+        errBox.innerText = 'Network error: ' + err.message;
+        errBox.style.display = 'block';
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('khk_admin_token');
+      token = '';
+      document.getElementById('loginScreen').style.display = 'flex';
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      document.querySelectorAll('section[id^="tab-"]').forEach(s => s.style.display = 'none');
+
+      const activeSection = document.getElementById(`tab-${tab}`);
+      if (activeSection) activeSection.style.display = 'block';
+
+      // Update active nav
+      const clickedLink = Array.from(document.querySelectorAll('.nav-link')).find(l => l.getAttribute('onclick')?.includes(`'${tab}'`));
+      if (clickedLink) clickedLink.classList.add('active');
+
+      const titles = {
+        dashboard: '📊 Dashboard Overview',
+        beneficiaries: '👥 Beneficiaries & Campaigns',
+        verification: '✅ Verification Queue',
+        donations: '💰 Donation Transactions Audit',
+        donors: '👤 Donor Community',
+        distributions: '📦 Assistance Handover & Distributions',
+        broadcast: '📢 Telegram Announcement Broadcast',
+        audit: '⚙️ Immutable Audit Logs'
+      };
+      document.getElementById('pageTitle').innerText = titles[tab] || 'Administration';
+
+      refreshCurrentTab();
+    }
+
+    function refreshCurrentTab() {
+      if (currentTab === 'dashboard') loadDashboard();
+      if (currentTab === 'beneficiaries') loadBeneficiaries();
+      if (currentTab === 'verification') loadVerification();
+      if (currentTab === 'donations') loadDonations();
+      if (currentTab === 'donors') loadDonors();
+      if (currentTab === 'distributions') loadDistributions();
+      if (currentTab === 'audit') loadAuditLogs();
+    }
+
+    async function loadDashboard() {
+      const res = await fetch('/api/admin/dashboard', { headers: authHeaders() });
+      const data = await res.json();
+      if (!data.success) return;
+
+      const s = data.stats;
+      document.getElementById('statTotalDonated').innerText = `$${s.totalDonatedAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+      document.getElementById('statDonationsCount').innerText = `${s.totalDonationsCount} verified donations`;
+      document.getElementById('statTotalDistributed').innerText = `$${s.totalDistributedAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+      document.getElementById('statActiveCampaigns').innerText = s.activeCampaigns;
+      document.getElementById('statCompletedCampaigns').innerText = `${s.completedCampaigns} completed`;
+      document.getElementById('statTotalDonors').innerText = s.totalDonors;
+      document.getElementById('statPendingVerification').innerText = s.pendingVerification;
+
+      const tbody = document.getElementById('dashboardRecentDonationsTbody');
+      if (!data.recentDonations || data.recentDonations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No donations yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.recentDonations.map(d => `
+        <tr>
+          <td><b>${d.donation_code}</b></td>
+          <td>${d.beneficiary_name || 'N/A'}</td>
+          <td><b>$${d.amount.toFixed(2)}</b></td>
+          <td>${d.payment_provider}</td>
+          <td><code>${d.transaction_id}</code></td>
+          <td><span class="badge badge-${d.status.toLowerCase()}">${d.status}</span></td>
+          <td>${new Date(d.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadBeneficiaries() {
+      const res = await fetch('/api/admin/beneficiaries', { headers: authHeaders() });
+      const data = await res.json();
+      if (!data.success) return;
+
+      cachedBeneficiaries = data.beneficiaries;
+      const tbody = document.getElementById('beneficiariesTbody');
+      tbody.innerHTML = data.beneficiaries.map(b => `
+        <tr>
+          <td><img src="${b.profile_image_url || 'https://via.placeholder.com/40'}" style="width: 36px; height: 36px; border-radius: 6px; object-fit: cover;"></td>
+          <td><b>${b.full_name}</b><br><small style="color: var(--text-muted);">${b.full_name_km || ''}</small></td>
+          <td><span class="badge">${b.category}</span></td>
+          <td>${b.location}</td>
+          <td>$${b.amount_needed.toLocaleString()}</td>
+          <td>$${b.amount_received.toLocaleString()}</td>
+          <td><span class="badge badge-${b.status.toLowerCase()}">${b.status}</span></td>
+          <td>
+            <button class="btn btn-secondary btn-sm" onclick="promptStatusChange(${b.id})">Update Status</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadVerification() {
+      const res = await fetch('/api/admin/beneficiaries', { headers: authHeaders() });
+      const data = await res.json();
+      if (!data.success) return;
+
+      const tbody = document.getElementById('verificationTbody');
+      tbody.innerHTML = data.beneficiaries.map(b => `
+        <tr>
+          <td><b>${b.full_name}</b> (${b.age || 'N/A'} y/o)</td>
+          <td>${b.category}</td>
+          <td>${b.location}</td>
+          <td style="max-width: 280px; font-size: 0.8rem;">${b.current_situation}</td>
+          <td><b>$${b.amount_needed}</b></td>
+          <td><span class="badge badge-${b.status.toLowerCase()}">${b.status}</span></td>
+          <td>
+            <div style="display: flex; gap: 0.3rem;">
+              <button class="btn btn-gold btn-sm" onclick="setBeneficiaryStatus(${b.id}, 'VERIFIED')">Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="setBeneficiaryStatus(${b.id}, 'REJECTED')">Reject</button>
+              <button class="btn btn-secondary btn-sm" onclick="setBeneficiaryStatus(${b.id}, 'PENDING_REVIEW')">Info</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadDonations() {
+      const search = document.getElementById('donationSearch')?.value || '';
+      const status = document.getElementById('donationStatusFilter')?.value || 'ALL';
+      const res = await fetch(`/api/admin/donations?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}`, { headers: authHeaders() });
+      const data = await res.json();
+      if (!data.success) return;
+
+      const tbody = document.getElementById('donationsTbody');
+      if (data.donations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No donations match filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.donations.map(d => `
+        <tr>
+          <td><b>${d.donation_code}</b></td>
+          <td><code>${d.telegram_id}</code> ${d.donor_username ? `(@${d.donor_username})` : ''}</td>
+          <td>${d.beneficiary_name || 'N/A'}</td>
+          <td><b>$${d.amount.toFixed(2)}</b></td>
+          <td>${d.payment_provider}</td>
+          <td><code>${d.transaction_id}</code></td>
+          <td><span class="badge badge-${d.status.toLowerCase()}">${d.status}</span></td>
+          <td>${new Date(d.created_at).toLocaleString()}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadDonors() {
+      const res = await fetch('/api/admin/donors', { headers: authHeaders() });
+      const data = await res.json();
+      if (!data.success) return;
+
+      const tbody = document.getElementById('donorsTbody');
+      tbody.innerHTML = data.donors.map(u => `
+        <tr>
+          <td><code>${u.telegram_id}</code></td>
+          <td>${u.first_name || ''} ${u.last_name || ''} ${u.username ? `(@${u.username})` : ''}</td>
+          <td><span class="badge">${u.language.toUpperCase()}</span></td>
+          <td><b>$${(u.total_donated || 0).toFixed(2)}</b></td>
+          <td>${u.donation_count || 0} donations</td>
+          <td>${new Date(u.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadDistributions() {
+      const res = await fetch('/api/admin/distributions', { headers: authHeaders() });
+      const data = await res.json();
+      if (!data.success) return;
+
+      const tbody = document.getElementById('distributionsTbody');
+      if (data.distributions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No distribution records yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.distributions.map(d => `
+        <tr>
+          <td><b>${d.reference_number || 'N/A'}</b></td>
+          <td>${d.beneficiary_name}</td>
+          <td><b>$${d.amount.toFixed(2)}</b></td>
+          <td>${d.method}</td>
+          <td>${d.distributed_date}</td>
+          <td>${d.admin_name || 'Admin'}</td>
+          <td><span class="badge badge-distributed">${d.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadAuditLogs() {
+      const res = await fetch('/api/admin/audit-logs?limit=50', { headers: authHeaders() });
+      const data = await res.json();
+      if (!data.success) return;
+
+      const tbody = document.getElementById('auditTbody');
+      tbody.innerHTML = data.logs.map(l => `
+        <tr>
+          <td><small>${new Date(l.created_at).toLocaleString()}</small></td>
+          <td><span class="badge">${l.actor_type}</span></td>
+          <td>${l.actor_id || '-'}</td>
+          <td><b>${l.action}</b></td>
+          <td>${l.entity_type}</td>
+          <td>${l.entity_id || '-'}</td>
+          <td><code style="font-size: 0.75rem;">${JSON.stringify(l.details).slice(0, 70)}</code></td>
+        </tr>
+      `).join('');
+    }
+
+    async function setBeneficiaryStatus(id, status) {
+      const notes = prompt(`Enter notes for setting status to ${status}:`, 'Verified by administrator review.');
+      if (notes === null) return;
+
+      const res = await fetch(`/api/admin/beneficiaries/${id}/status`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ status, notes })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Status updated to ${status}`);
+        refreshCurrentTab();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    }
+
+    function promptStatusChange(id) {
+      const status = prompt('Enter new status (DRAFT, PENDING_REVIEW, VERIFIED, REJECTED, SUSPENDED, COMPLETED):', 'VERIFIED');
+      if (status) setBeneficiaryStatus(id, status);
+    }
+
+    function openNewBeneficiaryModal() {
+      document.getElementById('beneficiaryModal').style.display = 'flex';
+    }
+
+    function openNewDistributionModal() {
+      const select = document.getElementById('distBeneficiaryId');
+      select.innerHTML = cachedBeneficiaries.map(b => `<option value="${b.id}">${b.full_name} (${b.category})</option>`).join('');
+      document.getElementById('distDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('distributionModal').style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    async function handleCreateBeneficiarySubmit(e) {
+      e.preventDefault();
+      const payload = {
+        fullName: document.getElementById('bFullName').value,
+        fullNameKm: document.getElementById('bFullNameKm').value,
+        category: document.getElementById('bCategory').value,
+        amountNeeded: document.getElementById('bAmountNeeded').value,
+        age: document.getElementById('bAge').value,
+        location: document.getElementById('bLocation').value,
+        profileImageUrl: document.getElementById('bProfileImageUrl').value,
+        currentSituationKm: document.getElementById('bSituationKm').value,
+        currentSituation: document.getElementById('bSituationEn').value,
+        story: document.getElementById('bStory').value,
+        storyKm: document.getElementById('bStory').value,
+        initialStatus: document.getElementById('bInitialStatus').value,
+      };
+
+      const res = await fetch('/api/admin/beneficiaries', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        closeModal('beneficiaryModal');
+        alert('Beneficiary created successfully!');
+        loadBeneficiaries();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    }
+
+    async function handleCreateDistributionSubmit(e) {
+      e.preventDefault();
+      const payload = {
+        beneficiaryId: document.getElementById('distBeneficiaryId').value,
+        amount: document.getElementById('distAmount').value,
+        distributedDate: document.getElementById('distDate').value,
+        method: document.getElementById('distMethod').value,
+        referenceNumber: document.getElementById('distRef').value,
+        proofDocument: document.getElementById('distProof').value,
+        notes: document.getElementById('distNotes').value,
+      };
+
+      const res = await fetch('/api/admin/distributions', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        closeModal('distributionModal');
+        alert('Distribution recorded successfully!');
+        loadDistributions();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    }
+
+    async function handleBroadcastSubmit(e) {
+      e.preventDefault();
+      const messageText = document.getElementById('broadcastText').value;
+      const mediaUrl = document.getElementById('broadcastMediaUrl').value;
+      const confirm = document.getElementById('broadcastConfirm').checked;
+
+      const resultBox = document.getElementById('broadcastResult');
+      resultBox.style.display = 'block';
+      resultBox.innerText = 'Dispatching broadcast to Telegram donors...';
+
+      const res = await fetch('/api/admin/broadcast', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          messageText,
+          mediaUrl,
+          mediaType: mediaUrl ? 'photo' : 'text',
+          confirm
+        })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        resultBox.innerHTML = `
+          <div style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 0.75rem; border-radius: 8px;">
+            ✅ Broadcast completed!<br>
+            Targets: <b>${data.stats.totalTargets}</b> | Sent: <b>${data.stats.sentCount}</b> | Failed: <b>${data.stats.failedCount}</b>
+          </div>
+        `;
+      } else {
+        resultBox.innerHTML = `<div style="color: red;">Error: ${data.error}</div>`;
+      }
+    }
+
+    // Initialize
+    checkAuth().then(ok => {
+      if (ok) refreshCurrentTab();
+    });
+  </script>
+</body>
+</html>

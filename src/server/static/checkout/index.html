@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khmer Help Khmer - Secure Donation Checkout</title>
+  <style>
+    :root {
+      --primary: #0f172a;
+      --secondary: #1e293b;
+      --accent-gold: #f59e0b;
+      --accent-gold-hover: #d97706;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Khmer OS Siemreap", sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; }
+
+    .checkout-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+      width: 100%;
+      max-width: 480px;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: #ffffff;
+      padding: 1.75rem 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .badge-test {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      margin-bottom: 0.75rem;
+      border: 1px solid #fde68a;
+    }
+
+    .badge-prod {
+      display: inline-block;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      margin-bottom: 0.75rem;
+    }
+
+    .header h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; }
+    .header p { color: #94a3b8; font-size: 0.85rem; margin-top: 0.25rem; }
+
+    .body-content { padding: 1.75rem 1.5rem; }
+
+    .amount-display {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-align: center;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .amount-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; }
+    .amount-val { font-size: 2.25rem; font-weight: 800; color: var(--primary); margin-top: 0.25rem; }
+
+    .beneficiary-box {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      padding: 1rem;
+      background: #fafafa;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    .beneficiary-img {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #e2e8f0;
+      flex-shrink: 0;
+    }
+
+    .beneficiary-details h3 { font-size: 1rem; font-weight: 700; color: var(--primary); }
+    .beneficiary-details p { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+    .tx-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px dashed var(--border);
+      padding-top: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tx-row { display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
+    .tx-row span:last-child { font-weight: 600; color: var(--primary); font-family: monospace; }
+
+    .khqr-box {
+      text-align: center;
+      background: #ffffff;
+      padding: 1rem;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.9rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .btn-pay {
+      background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-hover) 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+    }
+    .btn-pay:hover { opacity: 0.95; transform: translateY(-1px); }
+
+    .btn-decline {
+      background: transparent;
+      color: var(--danger);
+      margin-top: 0.75rem;
+      border: 1px solid #fecaca;
+    }
+    .btn-decline:hover { background: #fef2f2; }
+
+    .status-alert {
+      padding: 1.25rem;
+      border-radius: 12px;
+      text-align: center;
+      display: none;
+    }
+    .status-alert.success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; display: block; }
+    .status-alert.failed { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; display: block; }
+
+    .footer { text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <div class="checkout-card" id="cardContainer">
+    <div class="header">
+      <div id="modeBadge" class="badge-test">🧪 TEST MODE SIMULATOR</div>
+      <h1>🇰🇭 Khmer Help Khmer</h1>
+      <p>Official Humanitarian Donation Gateway</p>
+    </div>
+
+    <div class="body-content" id="loadingView">
+      <p style="text-align: center; color: var(--text-muted);">Loading payment session details...</p>
+    </div>
+
+    <div class="body-content" id="checkoutView" style="display: none;">
+      <div class="amount-display">
+        <div class="amount-label">Donation Amount</div>
+        <div class="amount-val" id="amountVal">$0.00</div>
+      </div>
+
+      <div class="beneficiary-box">
+        <img id="beneficiaryImg" class="beneficiary-img" src="" alt="Beneficiary">
+        <div class="beneficiary-details">
+          <h3 id="beneficiaryName">Beneficiary Name</h3>
+          <p id="beneficiaryLocation">Location</p>
+          <p id="beneficiarySituation" style="font-size: 0.75rem; color: #475569; margin-top: 4px; line-height: 1.3;"></p>
+        </div>
+      </div>
+
+      <div class="tx-meta">
+        <div class="tx-row">
+          <span>Transaction ID:</span>
+          <span id="txId">TX-000000</span>
+        </div>
+        <div class="tx-row">
+          <span>Donation Code:</span>
+          <span id="donationCode">KHK-0000</span>
+        </div>
+        <div class="tx-row">
+          <span>Provider:</span>
+          <span id="providerName">TEST</span>
+        </div>
+        <div class="tx-row">
+          <span>Status:</span>
+          <span id="statusBadge" style="color: #d97706;">PENDING</span>
+        </div>
+      </div>
+
+      <div id="testActionArea">
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 0.75rem; border-radius: 8px; font-size: 0.8rem; margin-bottom: 1.25rem;">
+          ℹ️ <b>Test Simulation:</b> No real funds will be charged. Click below to simulate instant payment approval or rejection.
+        </div>
+        <button class="btn btn-pay" id="btnApprove" onclick="submitSimulation('PAID')">
+          ✅ Approve & Pay <span id="btnAmountText">$0.00</span>
+        </button>
+        <button class="btn btn-decline" id="btnDecline" onclick="submitSimulation('FAILED')">
+          ❌ Decline Payment
+        </button>
+      </div>
+
+      <div class="status-alert" id="statusAlert"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Khmer Help Khmer Foundation &copy; 2026. All donations 100% verified & audited.</p>
+  </div>
+
+  <script>
+    const pathParts = window.location.pathname.split('/');
+    const txId = pathParts[pathParts.length - 1];
+
+    let currentDonation = null;
+
+    async function loadSession() {
+      try {
+        const res = await fetch(`/api/checkout/${encodeURIComponent(txId)}`);
+        const data = await res.json();
+
+        if (!data.success) {
+          document.getElementById('loadingView').innerHTML = `
+            <div style="color: var(--danger); text-align: center; padding: 1rem;">
+              ⚠️ ${data.error || 'Unable to find donation session'}
+            </div>
+          `;
+          return;
+        }
+
+        currentDonation = data.donation;
+        const b = data.beneficiary;
+
+        document.getElementById('loadingView').style.display = 'none';
+        document.getElementById('checkoutView').style.display = 'block';
+
+        if (data.mode === 'production') {
+          document.getElementById('modeBadge').className = 'badge-prod';
+          document.getElementById('modeBadge').innerText = '🛡️ LIVE SECURE PAYMENT';
+        }
+
+        document.getElementById('amountVal').innerText = `$${currentDonation.amount.toFixed(2)} USD`;
+        document.getElementById('btnAmountText').innerText = `$${currentDonation.amount.toFixed(2)}`;
+        document.getElementById('txId').innerText = currentDonation.transactionId;
+        document.getElementById('donationCode').innerText = currentDonation.donationCode;
+        document.getElementById('providerName').innerText = currentDonation.paymentProvider.toUpperCase();
+        document.getElementById('statusBadge').innerText = currentDonation.status;
+
+        if (b) {
+          document.getElementById('beneficiaryName').innerText = b.fullName;
+          document.getElementById('beneficiaryLocation').innerText = `📍 ${b.location}`;
+          document.getElementById('beneficiarySituation').innerText = b.currentSituation || '';
+          if (b.profileImageUrl) {
+            document.getElementById('beneficiaryImg').src = b.profileImageUrl;
+          }
+        }
+
+        if (currentDonation.status === 'PAID') {
+          showPaidState();
+        }
+      } catch (err) {
+        document.getElementById('loadingView').innerHTML = `<p style="color: red; text-align: center;">Error: ${err.message}</p>`;
+      }
+    }
+
+    function showPaidState() {
+      document.getElementById('testActionArea').style.display = 'none';
+      const alert = document.getElementById('statusAlert');
+      alert.className = 'status-alert success';
+      alert.innerHTML = `
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">🎉 Payment Successful!</h3>
+        <p style="font-size: 0.85rem;">Thank you! Your donation has been recorded and verified.</p>
+        <p style="font-size: 0.85rem; margin-top: 0.4rem;">A receipt has been automatically sent to your Telegram chat.</p>
+        <div style="margin-top: 1rem;">
+          <a href="/public/transparency.html" style="color: #047857; font-weight: 700; font-size: 0.85rem;">View Public Transparency Portal &rarr;</a>
+        </div>
+      `;
+    }
+
+    async function submitSimulation(status) {
+      const btnApprove = document.getElementById('btnApprove');
+      const btnDecline = document.getElementById('btnDecline');
+      btnApprove.disabled = true;
+      btnDecline.disabled = true;
+
+      try {
+        const res = await fetch('/api/payments/test-complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ transactionId: txId, status })
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          if (status === 'PAID') {
+            showPaidState();
+          } else {
+            document.getElementById('testActionArea').style.display = 'none';
+            const alert = document.getElementById('statusAlert');
+            alert.className = 'status-alert failed';
+            alert.innerHTML = `
+              <h3>❌ Payment Cancelled</h3>
+              <p>The transaction was declined or cancelled. You can return to Telegram to try again.</p>
+            `;
+          }
+        } else {
+          alert('Error: ' + result.error);
+          btnApprove.disabled = false;
+          btnDecline.disabled = false;
+        }
+      } catch (err) {
+        alert('Network error: ' + err.message);
+        btnApprove.disabled = false;
+        btnDecline.disabled = false;
+      }
+    }
+
+    loadSession();
+  </script>
+</body>
+</html>
